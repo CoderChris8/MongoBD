@@ -15,29 +15,35 @@ const Article = mongoose.model('Article', ArticleSchema);
 
 Article.find({}).then(articles => console.log(articles));
 
-request('https://www.wsj.com/news/technology', function(err, response, body){
-    if ( err ) return console.log(err);
-    $ = cheerio.load(body);
+app.get('/scrape', (req, res) => {
+    request('https://www.wsj.com/news/technology', function(err, response, html) {
+        if ( err ) return console.log(err);
+        $ = cheerio.load(html);
 
-    let articles = $('.wsj-list.lead-story .wsj-card');
+        let articles = $('.wsj-list.lead-story .wsj-card');
+        let results = Array.from(articles).filter(val => {
+            return $(val.find('.wsj-card-body .wsj-summary').text();
+        });
 
-    articles.each((index, article ) => {
-        const title = $(article).find('.wsj-headline a').text().trim();
-        const body = $(article).find('.wsj-card-body .wsj-summary').text().trim();
+        result.forEach((article, index) => {
+            const title = $(article).find('.wsj-headline a').text().trim();
+            const body = $(article).find('.wsj-card-body .wsj-summary').text().trim();
+            const send = () => Article.find({}).then(article_data => res.send(article_data));
 
-        if ( body ) {
-            
-            Article.find({title: title}).then(article => {
-                if ( !article ) {
-                    Article
-                    .create({title, body}).then(result => {
-                        console.log(result);
-                    })
-                    .catch(err => console.log(err));
-                }
+                Article.find({title: title}).then(article => {
+                    if ( !article ) {
+                        Article
+                        .create({title, body}).then(result => {
+                            
+                            if (index === results.length - 1) send();
+                        })
+                        .catch(err => console.log(err));
+                    } else {
+                        if (index === results.length - 1) send();
+                    }
+                });
             });
-        }
 
+        });
     });
-    
 });
